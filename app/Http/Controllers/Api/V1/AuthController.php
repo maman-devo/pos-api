@@ -19,9 +19,17 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
+        // 1. Periksa email dan password
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Email atau password salah.'],
+            ]);
+        }
+
+        // 2. Tambahkan validasi peran (role) untuk aplikasi kasir
+        if ($user->role !== 'cashier') {
+            throw ValidationException::withMessages([
+                'email' => ['Anda tidak memiliki hak akses untuk aplikasi kasir.'],
             ]);
         }
 

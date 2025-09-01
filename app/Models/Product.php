@@ -31,4 +31,9 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function promos()
+    {
+        return $this->hasMany(Promo::class);
+    }
 }

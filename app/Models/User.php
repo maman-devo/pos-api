@@ -6,11 +6,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens; // Ini sudah ada dan benar
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    // Tambahkan HasApiTokens di baris ini
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
@@ -36,24 +35,21 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
     /**
-     * Mendefinisikan relasi one-to-many ke model Transaction.
-     * Satu user (kasir) bisa memiliki banyak transaksi.
+     * Get the custom notifications for the user.
+     * Kita gunakan nama 'userNotifications' agar tidak bentrok dengan relasi bawaan Laravel.
      */
-    public function transactions()
+    public function userNotifications()
     {
-        return $this->hasMany(Transaction::class);
+        return $this->hasMany(Notification::class);
     }
 }

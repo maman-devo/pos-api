@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\View; // <-- Tambahkan ini
+use App\View\Composers\NotificationComposer; // <-- Tambahkan ini
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Memberitahu Laravel untuk menggunakan NotificationComposer
+        // setiap kali view 'layouts.app' di-render.
+        View::composer('layouts.app', NotificationComposer::class);
     }
 }

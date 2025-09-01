@@ -10,10 +10,27 @@ use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category')->latest()->paginate(10);
-        return view('admin.products.index', compact('products'));
+        $search = $request->query('search');
+        $perPage = $request->query('perPage', 10);
+        $categoriesFilter = $request->query('categories', []); // Ambil filter kategori
+
+        $products = Product::with('category')
+            ->when($search, function ($query, $search) {
+                return $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('sku', 'like', "%{$search}%");
+            })
+            ->when(!empty($categoriesFilter), function ($query) use ($categoriesFilter) {
+                return $query->whereIn('category_id', $categoriesFilter);
+            })
+            ->latest()
+            ->paginate($perPage)
+            ->withQueryString();
+
+        $categories = Category::all(); // Ambil semua kategori untuk dropdown filter
+
+        return view('admin.products.index', compact('products', 'search', 'perPage', 'categories', 'categoriesFilter'));
     }
 
     public function create()

@@ -20,9 +20,15 @@
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 required>
                         </div>
-                        <button type="submit"
-                            class="text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Simpan
-                            Perubahan</button>
+                        <div class="flex items-center justify-end mt-4">
+                            <a href="{{ route('admin.categories.index') }}"
+                                class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                {{ __('Batal') }}
+                            </a>
+                            <x-primary-button>
+                                {{ __('Perbarui') }}
+                            </x-primary-button>
+                        </div>
                     </form>
                 </div>
             </div>

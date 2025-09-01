@@ -11,12 +11,20 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::latest()->paginate(10);
-        return view('admin.categories.index', compact('categories'));
-    }
+        $search = $request->query('search');
+        $perPage = $request->query('perPage', 10);
 
+        $categories = Category::when($search, function ($query, $search) {
+            return $query->where('name', 'like', "%{$search}%");
+        })
+            ->latest()
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return view('admin.categories.index', compact('categories', 'search', 'perPage'));
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -46,7 +54,7 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Category $category)
     {
         return view('admin.categories.edit', compact('category'));
     }
@@ -54,7 +62,7 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Category $category)
     {
         $request->validate(['name' => 'required|string|unique:categories,name,' . $category->id]);
         $category->update($request->only('name'));
@@ -64,7 +72,7 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Category $category)
     {
         $category->delete();
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil dihapus.');

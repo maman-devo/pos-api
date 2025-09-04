@@ -6,12 +6,25 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Promo;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class PromoController extends Controller
 {
     public function index(Request $request)
     {
         $promos = Promo::with('product')->latest()->paginate(10);
+
+        // Logika untuk menentukan apakah promo masih valid (aktif + tanggal berlaku)
+        foreach ($promos as $promo) {
+            $isValid = $promo->is_active && (
+                (!$promo->start_date && !$promo->end_date) ||
+                (Carbon::now()->greaterThanOrEqualTo($promo->start_date) && Carbon::now()->lessThanOrEqualTo($promo->end_date))
+            );
+            $promo->is_valid = $isValid;
+        }
+
         return view('admin.promos.index', compact('promos'));
     }
 
@@ -23,16 +36,20 @@ class PromoController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'product_id' => 'required|exists:products,id',
-            'value' => 'required|numeric|min:0|max:100',
+            'type' => 'required|in:percentage,fixed',
+            'value' => 'required|numeric|min:0',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|boolean',
         ]);
 
-        Promo::create($request->all());
+        $data = $request->all();
+        $data['is_active'] = $request->has('is_active');
+
+        Promo::create($data);
 
         return redirect()->route('admin.promos.index')->with('success', 'Promo berhasil ditambahkan.');
     }
@@ -45,16 +62,16 @@ class PromoController extends Controller
 
     public function update(Request $request, Promo $promo)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'product_id' => 'required|exists:products,id',
-            'value' => 'required|numeric|min:0|max:100',
+            'type' => 'required|in:percentage,fixed',
+            'value' => 'required|numeric|min:0',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|boolean',
         ]);
 
-        // Handle checkbox 'is_active'
         $data = $request->all();
         $data['is_active'] = $request->has('is_active');
 
@@ -67,5 +84,13 @@ class PromoController extends Controller
     {
         $promo->delete();
         return redirect()->route('admin.promos.index')->with('success', 'Promo berhasil dihapus.');
+    }
+
+    public function toggleStatus(Promo $promo)
+    {
+        $promo->is_active = !$promo->is_active; // Membalik nilai is_active
+        $promo->save();
+
+        return response()->json(['success' => true, 'is_active' => $promo->is_active]);
     }
 }

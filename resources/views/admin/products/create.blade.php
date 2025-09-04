@@ -9,19 +9,20 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <form method="POST" action="{{ route('admin.products.store') }}">
+                    <form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data">
                         @csrf
 
-                        <!-- Nama Produk -->
                         <div class="mb-4">
                             <label for="name" class="block mb-2 text-sm font-medium text-gray-900">Nama
                                 Produk</label>
                             <input type="text" id="name" name="name"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 required>
+                            @error('name')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <!-- Kategori -->
                         <div class="mb-4">
                             <label for="category_id"
                                 class="block mb-2 text-sm font-medium text-gray-900">Kategori</label>
@@ -31,30 +32,51 @@
                                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                                 @endforeach
                             </select>
+                            @error('category_id')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <!-- SKU -->
                         <div class="mb-4">
                             <label for="sku" class="block mb-2 text-sm font-medium text-gray-900">SKU</label>
                             <input type="text" id="sku" name="sku"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 required>
+                            @error('sku')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <!-- Harga -->
                         <div class="mb-4">
                             <label for="price" class="block mb-2 text-sm font-medium text-gray-900">Harga</label>
                             <input type="number" id="price" name="price"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 required>
+                            @error('price')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <!-- Stok -->
                         <div class="mb-4">
                             <label for="stock" class="block mb-2 text-sm font-medium text-gray-900">Stok</label>
                             <input type="number" id="stock" name="stock"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 required>
+                            @error('stock')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-5">
+                            <label for="image_url" class="block mb-2 text-sm font-medium text-gray-900">Gambar
+                                Produk</label>
+                            <input
+                                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                                aria-describedby="file_input_help" id="image_url" name="image_url" type="file">
+                            <p class="mt-1 text-sm text-gray-500" id="file_input_help">PNG, JPG or GIF (MAX. 2MB).</p>
+                            @error('image_url')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="flex items-center justify-end mt-4">

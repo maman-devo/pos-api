@@ -93,6 +93,8 @@
                                 class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th scope="col" class="px-4 py-3">Nama Produk</th>
+                                    <!-- Tambahkan kolom baru untuk gambar -->
+                                    <th scope="col" class="px-4 py-3">Gambar</th>
                                     <th scope="col" class="px-4 py-3">SKU</th>
                                     <th scope="col" class="px-4 py-3">Kategori</th>
                                     <th scope="col" class="px-4 py-3">Harga</th>
@@ -106,6 +108,16 @@
                                         <th scope="row"
                                             class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                                             {{ $product->name }}</th>
+                                        <!-- Tampilkan gambar di sini -->
+                                        <td class="px-4 py-3">
+                                            @if ($product->image_url)
+                                                <img src="{{ asset('storage/' . $product->image_url) }}"
+                                                    alt="{{ $product->name }}"
+                                                    class="w-12 h-12 object-cover rounded-lg">
+                                            @else
+                                                <span class="text-gray-500">Tidak ada gambar</span>
+                                            @endif
+                                        </td>
                                         <td class="px-4 py-3">{{ $product->sku }}</td>
                                         <td class="px-4 py-3">{{ $product->category->name }}</td>
                                         <td class="px-4 py-3">Rp {{ number_format($product->price, 0, ',', '.') }}
@@ -126,8 +138,8 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-4 py-3 text-center">Tidak ada produk ditemukan.
-                                        </td>
+                                        <td colspan="7" class="px-4 py-3 text-center text-gray-500">Tidak ada
+                                            produk ditemukan.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

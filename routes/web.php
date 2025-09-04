@@ -39,7 +39,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::resource('promos', PromoController::class);
         Route::resource('payment-methods', PaymentMethodController::class);
 
-
+        // Route untuk toggle status promo
+        Route::post('promos/{promo}/toggle-status', [PromoController::class, 'toggleStatus'])->name('promos.toggleStatus');
 
         Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
         Route::get('transactions/{transaction}', [TransactionController::class, 'show'])->name('transactions.show');

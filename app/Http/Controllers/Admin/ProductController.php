@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -14,7 +15,7 @@ class ProductController extends Controller
     {
         $search = $request->query('search');
         $perPage = $request->query('perPage', 10);
-        $categoriesFilter = $request->query('categories', []); // Ambil filter kategori
+        $categoriesFilter = $request->query('categories', []);
 
         $products = Product::with('category')
             ->when($search, function ($query, $search) {
@@ -28,7 +29,7 @@ class ProductController extends Controller
             ->paginate($perPage)
             ->withQueryString();
 
-        $categories = Category::all(); // Ambil semua kategori untuk dropdown filter
+        $categories = Category::all();
 
         return view('admin.products.index', compact('products', 'search', 'perPage', 'categories', 'categoriesFilter'));
     }
@@ -41,15 +42,23 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'sku' => 'required|string|unique:products,sku',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
+            'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        Product::create($request->all());
+        $product = Product::create($validatedData);
+
+        if ($request->hasFile('image_url')) {
+            $imagePath = $request->file('image_url')->store('images/products', 'public');
+            $product->image_url = $imagePath;
+            $product->save();
+        }
+
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil ditambahkan.');
     }
 
@@ -61,20 +70,33 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'sku' => ['required', 'string', Rule::unique('products')->ignore($product->id)],
             'price' => 'required|numeric',
             'stock' => 'required|integer',
+            'image_url' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $product->update($request->all());
+        if ($request->hasFile('image_url')) {
+            if ($product->image_url) {
+                Storage::disk('public')->delete($product->image_url);
+            }
+            $imagePath = $request->file('image_url')->store('images/products', 'public');
+            $validatedData['image_url'] = $imagePath;
+        }
+
+        $product->update($validatedData);
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil diperbarui.');
     }
 
     public function destroy(Product $product)
     {
+        if ($product->image_url) {
+            Storage::disk('public')->delete($product->image_url);
+        }
+
         $product->delete();
         return redirect()->route('admin.products.index')->with('success', 'Produk berhasil dihapus.');
     }

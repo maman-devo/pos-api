@@ -9,11 +9,11 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <form method="POST" action="{{ route('admin.products.update', $product->id) }}">
+                    <form method="POST" action="{{ route('admin.products.update', $product->id) }}"
+                        enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
-                        <!-- Nama Produk -->
                         <div class="mb-4">
                             <label for="name" class="block mb-2 text-sm font-medium text-gray-900">Nama
                                 Produk</label>
@@ -21,9 +21,11 @@
                                 value="{{ old('name', $product->name) }}"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 required>
+                            @error('name')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <!-- Kategori -->
                         <div class="mb-4">
                             <label for="category_id"
                                 class="block mb-2 text-sm font-medium text-gray-900">Kategori</label>
@@ -35,32 +37,59 @@
                                     </option>
                                 @endforeach
                             </select>
+                            @error('category_id')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <!-- SKU -->
                         <div class="mb-4">
                             <label for="sku" class="block mb-2 text-sm font-medium text-gray-900">SKU</label>
                             <input type="text" id="sku" name="sku" value="{{ old('sku', $product->sku) }}"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 required>
+                            @error('sku')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <!-- Harga -->
                         <div class="mb-4">
                             <label for="price" class="block mb-2 text-sm font-medium text-gray-900">Harga</label>
                             <input type="number" id="price" name="price"
                                 value="{{ old('price', $product->price) }}"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 required>
+                            @error('price')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
-                        <!-- Stok -->
                         <div class="mb-4">
                             <label for="stock" class="block mb-2 text-sm font-medium text-gray-900">Stok</label>
                             <input type="number" id="stock" name="stock"
                                 value="{{ old('stock', $product->stock) }}"
                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                 required>
+                            @error('stock')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-5">
+                            <label for="image_url" class="block mb-2 text-sm font-medium text-gray-900">Gambar
+                                Produk</label>
+                            @if ($product->image_url)
+                                <div class="mb-4">
+                                    <img src="{{ asset('storage/' . $product->image_url) }}"
+                                        alt="{{ $product->name }}" class="w-24 h-24 object-cover rounded-lg">
+                                </div>
+                            @endif
+                            <input
+                                class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
+                                aria-describedby="file_input_help" id="image_url" name="image_url" type="file">
+                            <p class="mt-1 text-sm text-gray-500" id="file_input_help">PNG, JPG or GIF (MAX. 2MB).</p>
+                            @error('image_url')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <div class="flex items-center justify-end mt-4">
